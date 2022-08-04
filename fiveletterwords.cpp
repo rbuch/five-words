@@ -11,9 +11,9 @@
 // You should have received a copy of the GNU General Public License along
 // with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <chrono>
 
 #include <algorithm>
 #include <numeric>
@@ -185,8 +185,7 @@ int main(int argc, char *argv[]) {
         continue;
       const auto used_ij = used_i | word_bitmaps[j];
 
-      if (known_bad_ij[used_ij])
-      {
+      if (known_bad_ij[used_ij]) {
         continue;
       }
       // Prune the remaining words down to a set of candidates that do not share
@@ -238,8 +237,7 @@ int main(int argc, char *argv[]) {
           }
         }
       }
-      if (!found)
-      {
+      if (!found) {
         known_bad_ij[used_ij] = true;
       }
     }
@@ -256,7 +254,8 @@ int main(int argc, char *argv[]) {
   }
 
   const auto end_time = std::chrono::steady_clock::now();
-  const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-  std::cout << "DONE in " << elapsed.count() / 1000.0 << " seconds" << std::endl;
-
+  const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+      end_time - start_time);
+  std::cout << "DONE in " << elapsed.count() / 1000.0 << " seconds"
+            << std::endl;
 }
