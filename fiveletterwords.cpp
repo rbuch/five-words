@@ -24,7 +24,6 @@
 #include <bitset>
 #include <string>
 #include <vector>
-#include <unordered_set>
 
 #ifdef __has_include
 #if __has_include(<bit>)
@@ -173,10 +172,11 @@ int main(int argc, char *argv[]) {
 
   std::vector<uint32_t> candidate_bitmaps;
   std::vector<size_t> candidate_indices;
-  std::unordered_set<uint32_t> known_bad_ij;
+
+  std::vector<bool> known_bad_ij((1 << 26) - 1, false);
 
 #pragma omp parallel for schedule(dynamic) private(                            \
-    candidate_indices, candidate_bitmaps, known_bad_ij)
+    candidate_indices, candidate_bitmaps) shared(known_bad_ij)
   for (size_t i = 0; i < number_of_words; i++) {
     const auto used_i = word_bitmaps[i];
 
@@ -185,8 +185,10 @@ int main(int argc, char *argv[]) {
         continue;
       const auto used_ij = used_i | word_bitmaps[j];
 
-      if (known_bad_ij.count(used_ij) > 0)
+      if (known_bad_ij[used_ij])
+      {
         continue;
+      }
       // Prune the remaining words down to a set of candidates that do not share
       // a letter with either of the two words we've seen so far
       candidate_bitmaps.clear();
@@ -237,7 +239,9 @@ int main(int argc, char *argv[]) {
         }
       }
       if (!found)
-        known_bad_ij.insert(used_ij);
+      {
+        known_bad_ij[used_ij] = true;
+      }
     }
   }
   std::cout << "Damn, we had " << matches.size() << " successful finds!"
